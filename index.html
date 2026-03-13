@@ -1,0 +1,1499 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Xadrez com Z — Pacote Didático para Professores</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"></noscript>
+<style>
+:root {
+  --gold: #f5c842;
+  --gold2: #e0a800;
+  --dark: #080c14;
+  --dark2: #0d1424;
+  --dark3: #111928;
+  --blue: #1a6bff;
+  --blue2: #0d4fcf;
+  --cyan: #00e5ff;
+  --white: #f0f4ff;
+  --gray: #8899bb;
+  --cell-light: #c8d8f0;
+  --cell-dark: #1a2d5a;
+  --glow-gold: 0 0 30px rgba(245,200,66,0.6);
+  --glow-blue: 0 0 30px rgba(0,229,255,0.4);
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Outfit',sans-serif;
+  background:var(--dark);
+  color:var(--white);
+  overflow-x:hidden;
+  cursor:none;
+}
+
+/* CUSTOM CURSOR */
+#cursor{
+  position:fixed;width:12px;height:12px;
+  background:var(--gold);border-radius:50%;
+  pointer-events:none;z-index:9999;
+  transform:translate(-50%,-50%);
+  transition:transform 0.1s,width 0.2s,height 0.2s,background 0.2s;
+  mix-blend-mode:difference;
+}
+#cursor-trail{
+  position:fixed;width:36px;height:36px;
+  border:2px solid rgba(245,200,66,0.4);border-radius:50%;
+  pointer-events:none;z-index:9998;
+  transform:translate(-50%,-50%);
+  transition:transform 0.15s ease,left 0.12s ease,top 0.12s ease;
+}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:500;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 48px;
+  background:rgba(8,12,20,0.85);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(245,200,66,0.15);
+}
+.nav-logo{
+  font-family:'Cinzel',serif;font-size:1.4rem;
+  color:var(--gold);letter-spacing:0.1em;text-shadow:var(--glow-gold);
+}
+.nav-logo span{color:var(--white);opacity:0.6;}
+.nav-links{display:flex;gap:32px;}
+.nav-links a{color:var(--gray);text-decoration:none;font-size:0.9rem;font-weight:500;transition:color 0.2s;}
+.nav-links a:hover{color:var(--gold);}
+.nav-cta{
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:var(--dark);padding:10px 28px;border-radius:50px;
+  font-weight:700;font-size:0.9rem;text-decoration:none;
+  box-shadow:var(--glow-gold);transition:transform 0.2s,box-shadow 0.2s;
+  border:none;cursor:pointer;font-family:'Outfit',sans-serif;
+}
+.nav-cta:hover{transform:translateY(-2px);box-shadow:0 0 50px rgba(245,200,66,0.8);}
+
+/* ── PARTICLES BG ── */
+#particles-canvas{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  pointer-events:none;z-index:0;opacity:0.5;
+}
+
+/* ── HERO ── */
+.hero{
+  min-height:100vh;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;
+  padding:120px 48px 60px;
+}
+.hero-bg{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(26,107,255,0.15) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(245,200,66,0.08) 0%, transparent 60%),
+    var(--dark);
+}
+.hero-inner{
+  position:relative;z-index:2;
+  display:grid;grid-template-columns:1fr 1fr;gap:64px;
+  align-items:center;max-width:1200px;margin:0 auto;width:100%;
+}
+.hero-left{}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(245,200,66,0.1);border:1px solid rgba(245,200,66,0.3);
+  color:var(--gold);padding:8px 20px;border-radius:50px;
+  font-size:0.8rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;
+  margin-bottom:24px;
+  animation:fadeLeft 0.7s ease both;
+  flex-wrap:wrap;word-break:break-word;
+}
+.hero h1{
+  font-family:'Cinzel',serif;
+  font-size:clamp(2rem,4vw,3.4rem);
+  font-weight:900;line-height:1.15;
+  color:var(--white);margin-bottom:8px;
+  animation:fadeLeft 0.7s ease 0.1s both;
+}
+.hero h1 .highlight{
+  background:linear-gradient(90deg,var(--gold),var(--cyan));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.hero-sub{
+  font-size:1.05rem;color:var(--gray);line-height:1.8;
+  max-width:500px;margin-bottom:40px;
+  animation:fadeLeft 0.7s ease 0.2s both;
+}
+.hero-pills{
+  display:flex;flex-wrap:wrap;gap:10px;margin-bottom:40px;
+  animation:fadeLeft 0.7s ease 0.3s both;
+}
+.hero-pill{
+  background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
+  color:var(--white);padding:7px 16px;border-radius:50px;font-size:0.85rem;
+  display:flex;align-items:center;gap:6px;
+}
+.btn-hero{
+  display:inline-flex;align-items:center;gap:10px;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:var(--dark);padding:18px 48px;border-radius:50px;
+  font-family:'Outfit',sans-serif;font-weight:700;font-size:1.1rem;
+  text-decoration:none;border:none;cursor:pointer;
+  box-shadow:var(--glow-gold);
+  transition:transform 0.2s,box-shadow 0.2s;
+  animation:fadeLeft 0.7s ease 0.4s both;
+}
+.btn-hero:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 0 60px rgba(245,200,66,0.7);}
+.btn-hero .arrow{font-size:1.3rem;transition:transform 0.2s;}
+.btn-hero:hover .arrow{transform:translateX(4px);}
+.hero-trust{
+  margin-top:20px;color:rgba(136,153,187,0.7);font-size:0.82rem;
+  animation:fadeLeft 0.7s ease 0.5s both;
+  line-height:1.7;
+  word-break:break-word;
+}
+
+/* ── 3D CHESSBOARD ── */
+.chess-scene{
+  perspective:900px;
+  animation:fadeRight 0.8s ease 0.2s both;
+  display:flex;align-items:center;justify-content:center;
+  order:2;
+  /* espaço generoso para o tabuleiro rotacionado não ser cortado */
+  padding:60px 80px 80px 80px;
+  overflow:visible;
+}
+.chess-board-wrap{
+  transform-style:preserve-3d;
+  transform:rotateX(40deg) rotateZ(-15deg);
+  animation:boardFloat 6s ease-in-out infinite;
+  position:relative;
+}
+@keyframes boardFloat{
+  0%,100%{transform:rotateX(40deg) rotateZ(-15deg) translateY(0);}
+  50%{transform:rotateX(40deg) rotateZ(-15deg) translateY(-16px);}
+}
+.chess-board{
+  width:360px;height:360px;
+  display:grid;grid-template-columns:repeat(8,1fr);
+  border-radius:8px;overflow:hidden;
+  box-shadow:
+    0 60px 80px rgba(0,0,0,0.8),
+    0 0 0 4px var(--gold),
+    0 0 60px rgba(245,200,66,0.3);
+  position:relative;z-index:2;
+}
+.chess-cell{
+  width:100%;aspect-ratio:1;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.6rem;position:relative;
+  transition:background 0.3s;
+}
+.chess-cell.light{background:var(--cell-light);}
+.chess-cell.dark{background:var(--cell-dark);}
+.chess-cell.glow-cell{animation:cellPulse 2s ease infinite;}
+@keyframes cellPulse{
+  0%,100%{box-shadow:inset 0 0 0 0 rgba(245,200,66,0);}
+  50%{box-shadow:inset 0 0 20px rgba(245,200,66,0.4);}
+}
+.chess-piece{
+  font-size:1.8rem;
+  filter:drop-shadow(0 4px 8px rgba(0,0,0,0.5));
+  animation:piecePulse 3s ease infinite;
+  user-select:none;
+}
+/* Peças brancas — brilhantes */
+.chess-piece.white{
+  filter:drop-shadow(0 2px 6px rgba(0,0,0,0.8)) drop-shadow(0 0 4px rgba(255,255,255,0.4));
+  color:#f0f0f0;
+}
+/* Peças pretas — escuras com borda */
+.chess-piece.black{
+  filter:drop-shadow(0 2px 6px rgba(0,0,0,0.9)) drop-shadow(0 0 3px rgba(0,0,0,1));
+  color:#1a1a2e;
+  -webkit-text-stroke:1px rgba(100,120,180,0.6);
+}
+@keyframes piecePulse{
+  0%,100%{transform:scale(1);}
+  50%{transform:scale(1.08);}
+}
+/* board shadow/reflection */
+.board-shadow{
+  position:absolute;bottom:-30px;left:50%;
+  transform:translateX(-50%) rotateX(90deg) scaleY(0.3);
+  width:360px;height:360px;
+  background:radial-gradient(ellipse at center,rgba(245,200,66,0.25) 0%,transparent 70%);
+  z-index:1;
+}
+/* floating badges on board */
+.board-floaters{position:absolute;inset:-60px;pointer-events:none;z-index:10;}
+.floater{
+  position:absolute;
+  background:var(--dark2);border:1px solid rgba(245,200,66,0.4);
+  color:var(--gold);padding:6px 14px;border-radius:50px;
+  font-size:0.75rem;font-weight:700;white-space:nowrap;
+  box-shadow:var(--glow-gold);
+}
+.floater:nth-child(1){top:5%;right:-10px;animation:float1 4s ease-in-out infinite;}
+.floater:nth-child(2){bottom:20%;left:10px;animation:float2 5s ease-in-out infinite;}
+.floater:nth-child(3){top:50%;right:-10px;animation:float1 3.5s ease-in-out 1s infinite;}
+@keyframes float1{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+@keyframes float2{0%,100%{transform:translateY(0);}50%{transform:translateY(8px);}}
+
+/* ── STATS ── */
+.stats-section{
+  background:linear-gradient(180deg,var(--dark) 0%,var(--dark2) 100%);
+  border-top:1px solid rgba(245,200,66,0.15);
+  border-bottom:1px solid rgba(245,200,66,0.15);
+  padding:48px;
+}
+.stats-inner{
+  max-width:1100px;margin:0 auto;
+  display:flex;flex-wrap:wrap;justify-content:center;gap:0;
+}
+.stat{
+  flex:1;min-width:200px;text-align:center;padding:24px 32px;
+  border-right:1px solid rgba(255,255,255,0.06);
+}
+.stat:last-child{border-right:none;}
+.stat-num{
+  font-family:'Cinzel',serif;font-size:2.8rem;font-weight:900;
+  background:linear-gradient(135deg,var(--gold),var(--cyan));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.stat-label{color:var(--gray);font-size:0.85rem;margin-top:6px;}
+
+/* ── SECTION BASE ── */
+.section{padding:100px 48px;}
+.container{max-width:1100px;margin:0 auto;}
+.section-tag{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(0,229,255,0.08);border:1px solid rgba(0,229,255,0.25);
+  color:var(--cyan);padding:6px 18px;border-radius:50px;
+  font-size:0.78rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;
+  margin-bottom:16px;
+}
+.section-title{
+  font-family:'Cinzel',serif;
+  font-size:clamp(1.8rem,3vw,2.8rem);
+  font-weight:900;color:var(--white);
+  line-height:1.2;margin-bottom:16px;
+}
+.section-title em{
+  background:linear-gradient(90deg,var(--gold),var(--cyan));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;font-style:normal;
+}
+.section-sub{color:var(--gray);font-size:1rem;line-height:1.75;max-width:560px;}
+
+/* ── PROBLEM ── */
+.problem-section{background:var(--dark2);}
+.problem-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center;margin-top:64px;
+}
+.problem-cards{display:flex;flex-direction:column;gap:16px;}
+.problem-card{
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,80,80,0.2);
+  border-left:4px solid #ff4444;
+  border-radius:12px;padding:18px 22px;
+  display:flex;gap:14px;align-items:flex-start;
+  transition:transform 0.2s,border-color 0.2s;
+}
+.problem-card:hover{transform:translateX(6px);border-left-color:#ff6666;}
+.problem-card .px{font-size:1.2rem;flex-shrink:0;margin-top:2px;}
+.problem-card p{color:rgba(240,244,255,0.8);font-size:0.92rem;line-height:1.6;}
+.problem-visual-box{
+  background:var(--dark3);border-radius:24px;
+  border:1px solid rgba(245,200,66,0.15);
+  overflow:hidden;position:relative;
+  box-shadow:0 32px 64px rgba(0,0,0,0.5);
+}
+.problem-visual-header{
+  background:linear-gradient(135deg,rgba(245,200,66,0.1),rgba(0,229,255,0.05));
+  padding:24px 28px;border-bottom:1px solid rgba(255,255,255,0.06);
+  display:flex;align-items:center;gap:12px;
+}
+.problem-visual-header .big-icon{font-size:2.5rem;}
+.problem-visual-header h3{font-family:'Cinzel',serif;font-size:1.1rem;color:var(--gold);}
+.problem-visual-header p{font-size:0.85rem;color:var(--gray);margin-top:4px;}
+.problem-bars{padding:24px 28px;display:flex;flex-direction:column;gap:14px;}
+.pbar-label{font-size:0.8rem;color:var(--gray);margin-bottom:6px;display:flex;justify-content:space-between;}
+.pbar-track{background:rgba(255,255,255,0.06);border-radius:50px;height:8px;overflow:hidden;}
+.pbar-fill{height:100%;border-radius:50px;transition:width 1.5s ease;}
+.pbar-fill.red{background:linear-gradient(90deg,#ff4444,#ff6666);}
+.pbar-fill.gold{background:linear-gradient(90deg,var(--gold),var(--cyan));}
+
+/* ── ITEMS GRID ── */
+.items-section{background:var(--dark);}
+.items-header{text-align:center;margin-bottom:64px;}
+.items-header .section-sub{margin:0 auto;}
+.items-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:2px;
+}
+.item-card{
+  background:var(--dark3);
+  border:1px solid rgba(255,255,255,0.05);
+  padding:32px;cursor:default;
+  transition:transform 0.3s,background 0.3s,border-color 0.3s;
+  position:relative;overflow:hidden;
+  border-radius:4px;
+}
+.item-card::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(245,200,66,0.05),rgba(0,229,255,0.03));
+  opacity:0;transition:opacity 0.3s;
+}
+.item-card:hover{transform:translateY(-6px) scale(1.02);border-color:rgba(245,200,66,0.3);background:var(--dark2);}
+.item-card:hover::before{opacity:1;}
+.item-card-icon{
+  width:56px;height:56px;border-radius:14px;
+  background:linear-gradient(135deg,rgba(245,200,66,0.15),rgba(0,229,255,0.08));
+  border:1px solid rgba(245,200,66,0.2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.6rem;margin-bottom:18px;
+}
+.item-card-title{font-weight:700;color:var(--white);margin-bottom:8px;font-size:1rem;}
+.item-card-desc{font-size:0.88rem;color:var(--gray);line-height:1.7;}
+.item-card-tag{
+  display:inline-block;margin-top:14px;
+  background:rgba(0,229,255,0.08);
+  color:var(--cyan);padding:3px 12px;border-radius:50px;font-size:0.75rem;font-weight:600;
+}
+
+/* ── SHOWCASE / MATERIALS VISUAL ── */
+.showcase-section{
+  background:var(--dark2);
+  position:relative;overflow:hidden;
+  padding:100px 48px;
+}
+.showcase-section::before{
+  content:'';position:absolute;top:-200px;left:50%;transform:translateX(-50%);
+  width:800px;height:800px;
+  background:radial-gradient(circle,rgba(26,107,255,0.08) 0%,transparent 70%);
+  pointer-events:none;
+}
+.showcase-header{text-align:center;margin-bottom:72px;position:relative;z-index:2;}
+.cards-showcase{
+  display:flex;flex-wrap:wrap;justify-content:center;gap:20px;
+  position:relative;z-index:2;
+}
+/* CARD individual - simula cartinha do jogo */
+.game-card{
+  width:180px;border-radius:16px;overflow:hidden;
+  background:linear-gradient(160deg,var(--dark3),var(--dark2));
+  border:1px solid rgba(245,200,66,0.25);
+  box-shadow:0 16px 40px rgba(0,0,0,0.5);
+  cursor:pointer;
+  transition:transform 0.3s,box-shadow 0.3s;
+  position:relative;
+}
+.game-card:hover{
+  transform:translateY(-16px) rotate(-2deg) scale(1.05);
+  box-shadow:0 40px 60px rgba(0,0,0,0.6),var(--glow-gold);
+  border-color:var(--gold);
+  z-index:10;
+}
+.game-card-header{
+  background:linear-gradient(135deg,var(--blue2),#0a1f5c);
+  padding:20px;text-align:center;
+  border-bottom:2px solid rgba(245,200,66,0.3);
+  position:relative;
+}
+.game-card-header::after{
+  content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);
+}
+.game-card-piece{font-size:2.8rem;display:block;filter:drop-shadow(0 4px 12px rgba(245,200,66,0.4));}
+.game-card-type{
+  font-size:0.65rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;
+  color:rgba(200,220,255,0.6);margin-top:6px;
+}
+.game-card-body{padding:14px;}
+.game-card-name{font-family:'Cinzel',serif;font-size:0.85rem;color:var(--gold);margin-bottom:8px;font-weight:700;}
+.game-card-stats{display:flex;flex-direction:column;gap:5px;}
+.game-card-stat{
+  display:flex;justify-content:space-between;align-items:center;
+  font-size:0.72rem;color:var(--gray);
+}
+.game-card-stat span:last-child{color:var(--white);font-weight:600;}
+.game-card-bar{
+  height:3px;background:rgba(255,255,255,0.08);border-radius:50px;
+  overflow:hidden;margin-top:3px;
+}
+.game-card-bar-fill{height:100%;border-radius:50px;background:linear-gradient(90deg,var(--gold),var(--cyan));}
+.game-card-rarity{
+  text-align:center;padding:8px;
+  font-size:0.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;
+  border-top:1px solid rgba(255,255,255,0.06);
+}
+.rarity-lendario{color:#ff9d00;background:rgba(255,157,0,0.08);}
+.rarity-raro{color:#a855f7;background:rgba(168,85,247,0.08);}
+.rarity-comum{color:var(--cyan);background:rgba(0,229,255,0.08);}
+
+/* Achievement card */
+.achievement-card{
+  background:linear-gradient(160deg,var(--dark3),#0f1e0f);
+  border:1px solid rgba(100,255,100,0.2);
+  border-radius:16px;padding:20px;
+  width:220px;
+  box-shadow:0 16px 40px rgba(0,0,0,0.5);
+  transition:transform 0.3s,box-shadow 0.3s;
+  cursor:pointer;
+}
+.achievement-card:hover{
+  transform:translateY(-12px) scale(1.04);
+  box-shadow:0 40px 60px rgba(0,0,0,0.6),0 0 30px rgba(100,255,100,0.2);
+  border-color:rgba(100,255,100,0.5);
+}
+.ach-icon{font-size:2.2rem;margin-bottom:12px;display:block;}
+.ach-title{font-family:'Cinzel',serif;font-size:0.85rem;color:#7dff7d;margin-bottom:6px;}
+.ach-desc{font-size:0.75rem;color:var(--gray);line-height:1.5;}
+.ach-xp{
+  display:inline-block;margin-top:10px;
+  background:rgba(100,255,100,0.1);color:#7dff7d;
+  padding:3px 10px;border-radius:50px;font-size:0.72rem;font-weight:700;
+}
+
+/* Plan of lesson card */
+.lesson-card{
+  background:var(--dark3);border:1px solid rgba(0,229,255,0.2);
+  border-radius:16px;width:260px;overflow:hidden;
+  box-shadow:0 16px 40px rgba(0,0,0,0.5);
+  transition:transform 0.3s,box-shadow 0.3s;cursor:pointer;
+}
+.lesson-card:hover{
+  transform:translateY(-12px);
+  box-shadow:0 40px 60px rgba(0,0,0,0.6),var(--glow-blue);
+  border-color:var(--cyan);
+}
+.lesson-header{
+  background:linear-gradient(135deg,rgba(0,229,255,0.1),rgba(26,107,255,0.1));
+  padding:18px 20px;border-bottom:1px solid rgba(0,229,255,0.1);
+  display:flex;align-items:center;gap:12px;
+}
+.lesson-num{
+  width:36px;height:36px;background:var(--cyan);color:var(--dark);
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:0.85rem;flex-shrink:0;
+}
+.lesson-title-small{font-size:0.9rem;font-weight:700;color:var(--white);}
+.lesson-sub-small{font-size:0.75rem;color:var(--gray);margin-top:2px;}
+.lesson-body{padding:16px 20px;}
+.lesson-steps{display:flex;flex-direction:column;gap:8px;}
+.lesson-step{
+  display:flex;gap:10px;align-items:center;
+  font-size:0.78rem;color:var(--gray);
+}
+.step-dot{
+  width:8px;height:8px;border-radius:50%;flex-shrink:0;
+}
+.step-dot.done{background:var(--gold);}
+.step-dot.active{background:var(--cyan);box-shadow:0 0 8px var(--cyan);}
+.step-dot.todo{background:rgba(255,255,255,0.15);}
+.lesson-progress{padding:0 20px 18px;}
+.lp-bar{background:rgba(255,255,255,0.06);border-radius:50px;height:6px;overflow:hidden;margin-top:8px;}
+.lp-fill{height:100%;background:linear-gradient(90deg,var(--cyan),var(--blue));border-radius:50px;}
+.lp-text{font-size:0.72rem;color:var(--gray);display:flex;justify-content:space-between;margin-bottom:4px;}
+
+/* ── BENEFITS ── */
+.benefits-section{background:var(--dark);}
+.benefits-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px;
+  margin-top:64px;
+}
+.benefit-card{
+  background:var(--dark2);border-radius:20px;padding:28px;
+  border:1px solid rgba(255,255,255,0.05);
+  transition:transform 0.3s,border-color 0.3s;position:relative;overflow:hidden;
+}
+.benefit-card::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--gold),var(--cyan));
+  transform:scaleX(0);transition:transform 0.3s;transform-origin:left;
+}
+.benefit-card:hover{transform:translateY(-6px);border-color:rgba(245,200,66,0.2);}
+.benefit-card:hover::after{transform:scaleX(1);}
+.ben-icon{font-size:2rem;margin-bottom:16px;display:block;}
+.ben-title{font-family:'Cinzel',serif;font-size:1rem;color:var(--gold);margin-bottom:10px;}
+.ben-desc{font-size:0.88rem;color:var(--gray);line-height:1.7;}
+
+/* ── FORWHO ── */
+.forwho-section{background:var(--dark2);}
+.forwho-grid{display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-top:56px;}
+.fw-card{border-radius:20px;padding:36px;border:1px solid;}
+.fw-card.yes{background:rgba(34,197,94,0.04);border-color:rgba(34,197,94,0.2);}
+.fw-card.no{background:rgba(239,68,68,0.04);border-color:rgba(239,68,68,0.2);}
+.fw-card h3{
+  font-family:'Cinzel',serif;font-size:1.1rem;margin-bottom:24px;
+  display:flex;align-items:center;gap:10px;
+}
+.fw-card.yes h3{color:#4ade80;}
+.fw-card.no h3{color:#f87171;}
+.fw-list{list-style:none;display:flex;flex-direction:column;gap:12px;}
+.fw-list li{
+  display:flex;gap:10px;align-items:flex-start;
+  font-size:0.92rem;line-height:1.5;
+}
+.fw-card.yes .fw-list li{color:rgba(74,222,128,0.9);}
+.fw-card.no .fw-list li{color:rgba(248,113,113,0.9);}
+
+/* ── AUTHOR ── */
+.author-section{
+  background:linear-gradient(135deg,var(--dark3),#0a1020);
+  border-top:1px solid rgba(245,200,66,0.1);
+  border-bottom:1px solid rgba(245,200,66,0.1);
+}
+.author-inner{
+  display:grid;grid-template-columns:1.2fr 1.8fr;gap:72px;align-items:center;
+}
+.author-card{
+  background:var(--dark2);border-radius:24px;
+  border:1px solid rgba(245,200,66,0.2);
+  overflow:hidden;box-shadow:0 32px 64px rgba(0,0,0,0.5);
+}
+.author-card-top{
+  background:linear-gradient(135deg,#0a1f4a,#1a3570);
+  padding:40px;text-align:center;
+  border-bottom:1px solid rgba(245,200,66,0.15);
+  position:relative;overflow:hidden;
+}
+.author-card-top::before{
+  content:'♟';position:absolute;
+  font-size:12rem;color:rgba(255,255,255,0.03);
+  bottom:-40px;right:-20px;line-height:1;pointer-events:none;
+}
+.author-avatar-big{
+  font-size:4.5rem;width:100px;height:100px;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  margin:0 auto 16px;box-shadow:var(--glow-gold);
+}
+.author-name{font-family:'Cinzel',serif;font-size:1.3rem;color:var(--white);margin-bottom:4px;}
+.author-role{color:rgba(200,220,255,0.6);font-size:0.85rem;line-height:1.5;}
+.author-card-stats{padding:24px;display:flex;justify-content:space-around;}
+.a-stat{text-align:center;}
+.a-stat-num{font-family:'Cinzel',serif;font-size:1.6rem;color:var(--gold);}
+.a-stat-label{font-size:0.72rem;color:var(--gray);margin-top:2px;}
+.author-content .section-title{margin-bottom:20px;}
+.author-bio{color:var(--gray);line-height:1.8;font-size:0.95rem;margin-bottom:24px;}
+.author-cred{
+  display:flex;flex-direction:column;gap:12px;
+}
+.cred-item{
+  display:flex;gap:12px;align-items:center;
+  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);
+  border-radius:12px;padding:14px 18px;font-size:0.9rem;
+}
+.cred-icon{font-size:1.4rem;flex-shrink:0;}
+
+/* ── OFFER ── */
+.offer-section{background:var(--dark2);padding:100px 48px;}
+.offer-wrap{
+  max-width:800px;margin:64px auto 0;
+  background:var(--dark3);border-radius:28px;
+  border:1px solid rgba(245,200,66,0.3);
+  box-shadow:0 0 80px rgba(245,200,66,0.1),0 40px 80px rgba(0,0,0,0.5);
+  overflow:hidden;
+}
+.offer-top-banner{
+  background:linear-gradient(135deg,#0a1a3a,#111a30);
+  padding:48px;text-align:center;
+  border-bottom:1px solid rgba(245,200,66,0.2);
+  position:relative;overflow:hidden;
+}
+.offer-top-banner::before{
+  content:'♛';font-size:20rem;
+  position:absolute;top:-60px;left:50%;transform:translateX(-50%);
+  color:rgba(245,200,66,0.03);pointer-events:none;line-height:1;
+}
+.offer-badge-top{
+  display:inline-block;background:rgba(245,200,66,0.15);
+  color:var(--gold);padding:6px 20px;border-radius:50px;
+  font-size:0.78rem;font-weight:700;letter-spacing:0.1em;
+  text-transform:uppercase;margin-bottom:20px;
+}
+.offer-title-big{font-family:'Cinzel',serif;font-size:2rem;color:var(--white);margin-bottom:8px;}
+.offer-sub{color:var(--gray);font-size:0.95rem;}
+.offer-price-area{margin-top:28px;}
+.offer-old-price{color:rgba(136,153,187,0.5);font-size:1rem;text-decoration:line-through;margin-bottom:4px;}
+.offer-price-main{
+  font-family:'Cinzel',serif;font-size:3.2rem;
+  background:linear-gradient(90deg,var(--gold),var(--cyan));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;font-weight:900;
+}
+.offer-body-section{padding:40px 48px;}
+.offer-includes-list{display:flex;flex-direction:column;gap:12px;margin-bottom:36px;}
+.offer-item{
+  display:flex;gap:14px;align-items:center;
+  background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);
+  border-radius:12px;padding:14px 18px;font-size:0.92rem;color:var(--white);
+  transition:border-color 0.2s,background 0.2s;
+}
+.offer-item:hover{background:rgba(245,200,66,0.04);border-color:rgba(245,200,66,0.2);}
+.offer-item .check{
+  width:24px;height:24px;background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.3);
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  color:#4ade80;font-size:0.75rem;flex-shrink:0;
+}
+.btn-offer{
+  display:block;width:100%;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:var(--dark);padding:22px;border-radius:50px;
+  font-family:'Outfit',sans-serif;font-weight:700;font-size:1.2rem;
+  text-align:center;text-decoration:none;border:none;cursor:pointer;
+  box-shadow:var(--glow-gold);
+  transition:transform 0.2s,box-shadow 0.2s;
+}
+.btn-offer:hover{transform:translateY(-3px);box-shadow:0 0 80px rgba(245,200,66,0.6);}
+.offer-guarantee-row{
+  display:flex;align-items:center;gap:12px;margin-top:20px;
+  background:rgba(255,255,255,0.02);border-radius:12px;padding:16px 20px;
+  color:var(--gray);font-size:0.82rem;
+}
+
+/* ── FAQ ── */
+.faq-section{background:var(--dark);}
+.faq-list{max-width:760px;margin:56px auto 0;display:flex;flex-direction:column;gap:10px;}
+.faq-item{
+  background:var(--dark2);border:1px solid rgba(255,255,255,0.06);
+  border-radius:14px;overflow:hidden;
+  transition:border-color 0.2s;
+}
+.faq-item:hover{border-color:rgba(245,200,66,0.2);}
+.faq-q{
+  width:100%;background:none;border:none;padding:20px 24px;
+  text-align:left;font-family:'Outfit',sans-serif;font-size:0.97rem;
+  font-weight:600;color:var(--white);cursor:pointer;
+  display:flex;justify-content:space-between;align-items:center;gap:12px;
+}
+.faq-arrow{color:var(--gold);font-size:0.9rem;transition:transform 0.3s;flex-shrink:0;}
+.faq-q.open .faq-arrow{transform:rotate(180deg);}
+.faq-a{
+  max-height:0;overflow:hidden;transition:max-height 0.3s ease,padding 0.3s ease;
+  padding:0 24px;font-size:0.9rem;color:var(--gray);line-height:1.75;
+}
+.faq-a.open{max-height:200px;padding:0 24px 20px;}
+
+/* ── FINAL CTA ── */
+.final-cta{
+  padding:120px 48px;text-align:center;
+  background:linear-gradient(135deg,var(--dark) 0%,#0a1530 50%,var(--dark) 100%);
+  position:relative;overflow:hidden;
+}
+.final-cta::before{
+  content:'';position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:600px;height:600px;
+  background:radial-gradient(circle,rgba(245,200,66,0.07) 0%,transparent 70%);
+  pointer-events:none;
+}
+.final-cta h2{
+  font-family:'Cinzel',serif;
+  font-size:clamp(1.8rem,3.5vw,3.2rem);color:var(--white);
+  font-weight:900;margin-bottom:20px;line-height:1.2;
+  position:relative;z-index:1;
+}
+.final-cta h2 em{
+  background:linear-gradient(90deg,var(--gold),var(--cyan));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;font-style:normal;
+}
+.final-cta p{
+  color:var(--gray);font-size:1.05rem;max-width:520px;
+  margin:0 auto 44px;line-height:1.75;position:relative;z-index:1;
+}
+
+/* ── FOOTER ── */
+footer{
+  background:var(--dark2);padding:40px 48px;
+  border-top:1px solid rgba(255,255,255,0.05);
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;
+}
+.footer-brand{font-family:'Cinzel',serif;color:var(--gold);}
+.footer-links{display:flex;gap:24px;}
+.footer-links a{color:var(--gray);text-decoration:none;font-size:0.85rem;transition:color 0.2s;}
+.footer-links a:hover{color:var(--gold);}
+.footer-copy{color:rgba(136,153,187,0.5);font-size:0.8rem;}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeLeft{from{opacity:0;transform:translateX(-30px);}to{opacity:1;transform:translateX(0);}}
+@keyframes fadeRight{from{opacity:0;transform:translateX(30px);}to{opacity:1;transform:translateX(0);}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(40px);}to{opacity:1;transform:translateY(0);}}
+.reveal{opacity:0;transform:translateY(36px);transition:opacity 0.7s ease,transform 0.7s ease;}
+.reveal.visible{opacity:1;transform:translateY(0);}
+.reveal-left{opacity:0;transform:translateX(-36px);transition:opacity 0.7s ease,transform 0.7s ease;}
+.reveal-left.visible{opacity:1;transform:translateX(0);}
+.reveal-right{opacity:0;transform:translateX(36px);transition:opacity 0.7s ease,transform 0.7s ease;}
+.reveal-right.visible{opacity:1;transform:translateX(0);}
+
+/* Performance hints */
+.chess-board-wrap{will-change:transform;}
+.btn-hero,.btn-offer,.nav-cta{will-change:transform;}
+
+/* ══════════════════════════════════
+   TABLET  (≤ 900px)
+══════════════════════════════════ */
+@media(max-width:900px){
+  body{cursor:auto;}
+  #cursor,#cursor-trail{display:none;}
+
+  /* NAV */
+  nav{padding:14px 20px;}
+  .nav-links{display:none;}
+  .nav-cta{padding:9px 18px;font-size:0.82rem;}
+
+  /* HERO */
+  .hero{padding:100px 24px 48px;}
+  .hero-inner{grid-template-columns:1fr;gap:40px;}
+  .hero-sub{font-size:0.95rem;max-width:100%;}
+  .hero-trust{font-size:0.75rem;line-height:1.6;}
+  .hero-pills{gap:8px;}
+  .hero-pill{font-size:0.8rem;padding:6px 12px;}
+
+  /* TABULEIRO — versão menor no mobile */
+  .chess-scene{
+    display:flex;
+    justify-content:center;
+    margin-top:8px;
+    overflow:visible;
+    min-height:200px;
+    padding:40px 20px 60px;
+  }
+  .chess-board-wrap{
+    transform:rotateX(30deg) rotateZ(-10deg) scale(0.72);
+    transform-origin:center center;
+  }
+  @keyframes boardFloat{
+    0%,100%{transform:rotateX(30deg) rotateZ(-10deg) scale(0.72) translateY(0);}
+    50%{transform:rotateX(30deg) rotateZ(-10deg) scale(0.72) translateY(-10px);}
+  }
+  /* Floaters menores e reposicionados no mobile */
+  .board-floaters{inset:-30px;}
+  .floater{font-size:0.65rem;padding:5px 10px;}
+  .floater:nth-child(1){top:0%;right:0px;}
+  .floater:nth-child(2){bottom:15%;left:20px;}
+  .floater:nth-child(3){top:48%;right:0px;}
+  .chess-board{width:300px;height:300px;}
+  .chess-piece{font-size:1.4rem;}
+  .chess-cell{font-size:1.2rem;}
+
+  /* STATS */
+  .stats-section{padding:36px 20px;}
+  .stat{min-width:140px;padding:16px 12px;}
+  .stat-num{font-size:2rem;}
+  .stat-label{font-size:0.78rem;}
+
+  /* SECTIONS */
+  .section{padding:56px 20px;}
+  .showcase-section{padding:56px 20px;}
+  .offer-section{padding:56px 20px;}
+
+  /* PROBLEM */
+  .problem-grid{grid-template-columns:1fr;gap:32px;}
+
+  /* ITEMS GRID */
+  .items-grid{grid-template-columns:1fr;}
+  .item-card{padding:24px 20px;}
+
+  /* SHOWCASE CARDS */
+  .cards-showcase{gap:14px;}
+  .game-card{width:150px;}
+  .game-card-piece{font-size:2.2rem;}
+  .achievement-card{width:180px;}
+  .lesson-card{width:220px;}
+
+  /* BENEFITS */
+  .benefits-grid{grid-template-columns:1fr;gap:16px;margin-top:40px;}
+  .benefit-card{padding:22px 20px;}
+
+  /* FOR WHOM */
+  .forwho-section .section{padding:56px 20px;}
+  .forwho-grid{grid-template-columns:1fr;gap:20px;}
+  .fw-card{padding:24px 20px;}
+  .fw-card h3{font-size:1rem;margin-bottom:16px;}
+  .fw-list li{font-size:0.88rem;}
+
+  /* AUTHOR */
+  .author-inner{grid-template-columns:1fr;gap:32px;}
+  .author-card-top{padding:28px 20px;}
+  .author-bio{font-size:0.9rem;}
+  .cred-item{font-size:0.85rem;padding:12px 14px;}
+
+  /* OFFER */
+  .offer-top-banner{padding:32px 20px;}
+  .offer-title-big{font-size:1.4rem;}
+  .offer-price-main{font-size:2.4rem;}
+  .offer-body-section{padding:24px 20px;}
+  .offer-item{font-size:0.85rem;padding:12px 14px;}
+  .btn-offer{font-size:1rem;padding:18px 16px;}
+  .offer-guarantee-row{font-size:0.78rem;padding:12px 14px;}
+
+  /* FAQ */
+  .faq-list{margin-top:32px;}
+  .faq-q{font-size:0.9rem;padding:16px 18px;}
+  .faq-a.open{max-height:300px;}
+
+  /* FINAL CTA */
+  .final-cta{padding:80px 20px;}
+
+  /* FOOTER */
+  footer{flex-direction:column;text-align:center;padding:32px 20px;gap:12px;}
+  .footer-links{flex-wrap:wrap;justify-content:center;gap:16px;}
+}
+
+/* ══════════════════════════════════
+   SMARTPHONE  (≤ 480px)
+══════════════════════════════════ */
+@media(max-width:480px){
+  /* NAV */
+  .nav-logo{font-size:1.1rem;}
+  .nav-cta{padding:8px 14px;font-size:0.78rem;}
+
+  /* HERO */
+  .hero{padding:90px 16px 40px;}
+  .hero-badge{font-size:0.7rem;padding:6px 14px;letter-spacing:0.06em;text-align:center;}
+  .hero h1{font-size:1.9rem;}
+  .hero-sub{font-size:0.9rem;}
+  .btn-hero{width:100%;justify-content:center;padding:16px 24px;font-size:1rem;}
+  .hero-trust{font-size:0.72rem;}
+  .hero-pills{gap:6px;}
+  .hero-pill{font-size:0.76rem;padding:5px 11px;}
+
+  /* TABULEIRO pequeno */
+  .chess-board-wrap{transform:rotateX(28deg) rotateZ(-8deg) scale(0.58);}
+  @keyframes boardFloat{
+    0%,100%{transform:rotateX(28deg) rotateZ(-8deg) scale(0.58) translateY(0);}
+    50%{transform:rotateX(28deg) rotateZ(-8deg) scale(0.58) translateY(-8px);}
+  }
+  .floater{font-size:0.6rem;padding:4px 9px;}
+  .floater:nth-child(2){left:10px;}
+
+  /* STATS */
+  .stats-inner{gap:0;}
+  .stat{min-width:50%;border-right:none;border-bottom:1px solid rgba(255,255,255,0.06);padding:16px 8px;}
+  .stat:nth-child(odd){border-right:1px solid rgba(255,255,255,0.06);}
+  .stat:nth-last-child(-n+2){border-bottom:none;}
+  .stat-num{font-size:1.8rem;}
+
+  /* SECTIONS */
+  .section{padding:48px 16px;}
+  .showcase-section{padding:48px 16px;}
+  .offer-section{padding:48px 16px;}
+  .section-title{font-size:1.5rem;}
+
+  /* PROBLEM */
+  .problem-visual-box{margin-top:0;}
+
+  /* SHOWCASE — scroll horizontal */
+  .cards-showcase{
+    flex-wrap:nowrap;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    scroll-snap-type:x mandatory;
+    padding-bottom:12px;
+    justify-content:flex-start;
+    gap:12px;
+  }
+  .cards-showcase::-webkit-scrollbar{height:4px;}
+  .cards-showcase::-webkit-scrollbar-track{background:rgba(255,255,255,0.04);}
+  .cards-showcase::-webkit-scrollbar-thumb{background:rgba(245,200,66,0.3);border-radius:4px;}
+  .game-card,.achievement-card,.lesson-card{
+    flex-shrink:0;scroll-snap-align:start;
+  }
+  .game-card{width:145px;}
+  .achievement-card{width:175px;}
+  .lesson-card{width:210px;}
+
+  /* OFFER */
+  .offer-top-banner{padding:28px 16px;}
+  .offer-title-big{font-size:1.2rem;}
+  .offer-price-main{font-size:2rem;}
+  .offer-body-section{padding:20px 16px;}
+  .btn-offer{font-size:0.95rem;padding:16px 12px;}
+
+  /* AUTHOR */
+  .author-card-stats{flex-wrap:wrap;gap:12px;}
+  .a-stat{min-width:40%;}
+
+  /* FOR WHOM */
+  .fw-card{padding:20px 16px;}
+  .fw-list li{font-size:0.84rem;}
+
+  /* FINAL CTA */
+  .final-cta{padding:60px 16px;}
+  .final-cta h2{font-size:1.6rem;}
+  .final-cta p{font-size:0.92rem;}
+  .final-cta .btn-hero{width:100%;justify-content:center;}
+}
+</style>
+</head>
+<body>
+
+<canvas id="particles-canvas"></canvas>
+<div id="cursor"></div>
+<div id="cursor-trail"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Xadrez com <span>Z</span></div>
+  <div class="nav-links">
+    <a href="#materiais">Materiais</a>
+    <a href="#beneficios">Benefícios</a>
+    <a href="#autor">Autor</a>
+    <a href="#oferta">Oferta</a>
+  </div>
+  <a href="https://pay.hotmart.com/C102839941U" class="nav-cta" target="_blank" rel="noopener">Quero o Pacote ♟</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div class="hero-badge">♟ Pacote Didático Premium · Professores de Xadrez</div>
+      <h1>Eleve suas aulas<br>a outro <span class="highlight">nível</span></h1>
+      <p class="hero-sub">Material completo, gamificado e visual — criado por quem ensina xadrez há anos e já impactou mais de 2.000 alunos em escolas reais.</p>
+      <div class="hero-pills">
+        <div class="hero-pill"><span>⏱</span> Economize horas de planejamento</div>
+        <div class="hero-pill"><span>🎮</span> Sistema gamificado de recompensas</div>
+        <div class="hero-pill"><span>📚</span> Pronto pra imprimir e usar</div>
+        <div class="hero-pill"><span>🔄</span> Atualizações sem custo</div>
+      </div>
+      <a href="https://pay.hotmart.com/C102839941U" class="btn-hero" target="_blank" rel="noopener">Quero esse pacote <span class="arrow">→</span></a>
+      <p class="hero-trust">🔒 Acesso digital seguro · Do Infantil 4 ao Ensino Médio · 130k seguidores @xadrezcomz</p>
+    </div>
+    <div class="chess-scene">
+      <div class="chess-board-wrap">
+        <div class="chess-board" id="chess-board"></div>
+        <div class="board-shadow"></div>
+        <div class="board-floaters">
+          <div class="floater">🃏 Cartinhas pedagógicas</div>
+          <div class="floater">🎖️ Missão & Recompensa</div>
+          <div class="floater">♟ Planos de aula</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-section">
+  <div class="stats-inner">
+    <div class="stat"><div class="stat-num" data-target="2000">0</div><div class="stat-label">Alunos impactados</div></div>
+    <div class="stat"><div class="stat-num" data-target="130">0</div><div class="stat-label">Mil seguidores no Instagram</div></div>
+    <div class="stat"><div class="stat-num" data-target="10">0</div><div class="stat-label">Tipos de materiais incluídos</div></div>
+    <div class="stat"><div class="stat-num" data-target="900">0</div><div class="stat-label">Reais+ em valor de produção</div></div>
+  </div>
+</div>
+
+<!-- PROBLEM -->
+<section class="problem-section section">
+  <div class="container">
+    <div class="problem-grid">
+      <div class="reveal-left">
+        <div class="section-tag">⚠ O Problema</div>
+        <h2 class="section-title">Por que as aulas de xadrez perdem o <em>aluno</em>?</h2>
+        <p class="section-sub" style="margin-bottom:36px">A maioria dos professores sabe o poder do xadrez — mas falta tempo, recurso visual e método organizado.</p>
+        <div class="problem-cards">
+          <div class="problem-card"><span class="px">❌</span><p>Falta material visual bonito, profissional e adequado ao ambiente escolar.</p></div>
+          <div class="problem-card"><span class="px">❌</span><p>Horas perdidas procurando atividades soltas na internet e adaptando na correria.</p></div>
+          <div class="problem-card"><span class="px">❌</span><p>Alunos se desengajam quando a aula fica só em explicação e tabuleiro tradicional.</p></div>
+          <div class="problem-card"><span class="px">❌</span><p>A escola cobra resultado, torneios e projetos — mas não oferece estrutura didática.</p></div>
+        </div>
+      </div>
+      <div class="reveal-right">
+        <div class="problem-visual-box">
+          <div class="problem-visual-header">
+            <span class="big-icon">📊</span>
+            <div>
+              <h3>Engajamento nas aulas</h3>
+              <p>Comparação: com e sem material estruturado</p>
+            </div>
+          </div>
+          <div class="problem-bars">
+            <div>
+              <div class="pbar-label"><span>🎮 Com Pacote Didático</span><span style="color:#f5c842">94%</span></div>
+              <div class="pbar-track"><div class="pbar-fill gold" id="bar1" style="width:0%"></div></div>
+            </div>
+            <div>
+              <div class="pbar-label"><span>📄 Sem material estruturado</span><span style="color:#ff4444">28%</span></div>
+              <div class="pbar-track"><div class="pbar-fill red" id="bar2" style="width:0%"></div></div>
+            </div>
+            <div style="margin-top:8px">
+              <div class="pbar-label"><span>⏱ Tempo de planejamento poupado</span><span style="color:#00e5ff">80%</span></div>
+              <div class="pbar-track"><div class="pbar-fill gold" id="bar3" style="width:0%;background:linear-gradient(90deg,#00e5ff,#1a6bff)"></div></div>
+            </div>
+            <div>
+              <div class="pbar-label"><span>🏆 Retenção de conteúdo pelos alunos</span><span style="color:#f5c842">87%</span></div>
+              <div class="pbar-track"><div class="pbar-fill gold" id="bar4" style="width:0%"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ITEMS -->
+<section class="items-section section" id="materiais">
+  <div class="container">
+    <div class="items-header reveal">
+      <div class="section-tag">✦ O que está incluído</div>
+      <h2 class="section-title">Um arsenal completo para suas aulas</h2>
+      <p class="section-sub">Cada material foi testado em turmas reais do Infantil 4 ao Ensino Médio.</p>
+    </div>
+    <div class="items-grid">
+      <div class="item-card reveal"><div class="item-card-icon">🎨</div><div class="item-card-title">Decoração da Sala</div><p class="item-card-desc">Murais, faixas, posters e visuais para transformar o ambiente em um espaço temático e profissional.</p><span class="item-card-tag">Imprimível</span></div>
+      <div class="item-card reveal"><div class="item-card-icon">🃏</div><div class="item-card-title">Cartinhas Pedagógicas</div><p class="item-card-desc">Cartas de peças, aberturas, dicas, missões e desafios — deixam o conteúdo mais dinâmico e interativo.</p><span class="item-card-tag">Gamificado</span></div>
+      <div class="item-card reveal"><div class="item-card-icon">🎮</div><div class="item-card-title">Jogos Didáticos</div><p class="item-card-desc">Dinâmicas prontas para ensinar conceitos de forma prática, divertida e memorável.</p><span class="item-card-tag">Interativo</span></div>
+      <div class="item-card reveal"><div class="item-card-icon">📘</div><div class="item-card-title">Atividades e Desafios</div><p class="item-card-desc">Conteúdos graduados do básico ao avançado, prontos para imprimir e aplicar.</p><span class="item-card-tag">Multi-nível</span></div>
+      <div class="item-card reveal"><div class="item-card-icon">📝</div><div class="item-card-title">Listas de Exercícios</div><p class="item-card-desc">Para reforço, avaliação, lição de casa e acompanhamento da evolução dos alunos.</p><span class="item-card-tag">Avaliativo</span></div>
+      <div class="item-card reveal"><div class="item-card-icon">📚</div><div class="item-card-title">Planos de Aula</div><p class="item-card-desc">Planejamento organizado e progressivo — pare de improvisar e tenha uma sequência clara.</p><span class="item-card-tag">Estruturado</span></div>
+      <div class="item-card reveal"><div class="item-card-icon">✏️</div><div class="item-card-title">Editável no Canva</div><p class="item-card-desc">Arquivos personalizáveis para adaptar à sua escola, turmas e identidade visual.</p><span class="item-card-tag">Personalizável</span></div>
+      <div class="item-card reveal"><div class="item-card-icon">🎖️</div><div class="item-card-title">Sistema de Missão e Recompensa</div><p class="item-card-desc">Abordagem gamificada que aumenta motivação, disciplina e envolvimento dos alunos.</p><span class="item-card-tag">⭐ Premium</span></div>
+      <div class="item-card reveal"><div class="item-card-icon">♟️</div><div class="item-card-title">Mini Torneios e Kits</div><p class="item-card-desc">Estrutura pronta para torneios internos, desafios e eventos especiais de xadrez.</p><span class="item-card-tag">Eventos</span></div>
+      <div class="item-card reveal" style="border-color:rgba(0,229,255,0.2);background:rgba(0,229,255,0.03)"><div class="item-card-icon">🔄</div><div class="item-card-title">Atualizações Constantes</div><p class="item-card-desc">Novos materiais incluídos continuamente — seu acervo cresce sem custo adicional.</p><span class="item-card-tag" style="background:rgba(245,200,66,0.1);color:var(--gold)">Sempre novo</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- SHOWCASE -->
+<section class="showcase-section">
+  <div class="container">
+    <div class="showcase-header reveal">
+      <div class="section-tag">👁 Veja os materiais</div>
+      <h2 class="section-title">Como os materiais se parecem?</h2>
+      <p class="section-sub" style="margin:0 auto">Visual profissional, gamificado e pensado para engajar qualquer faixa etária.</p>
+    </div>
+    <div class="cards-showcase">
+      <!-- Game cards - peças -->
+      <div class="game-card reveal">
+        <div class="game-card-header">
+          <span class="game-card-piece">♛</span>
+          <div class="game-card-type">Peça · Cartinha</div>
+        </div>
+        <div class="game-card-body">
+          <div class="game-card-name">Rainha</div>
+          <div class="game-card-stats">
+            <div class="game-card-stat"><span>Poder</span><span>98</span></div>
+            <div class="game-card-bar"><div class="game-card-bar-fill" style="width:98%"></div></div>
+            <div class="game-card-stat"><span>Alcance</span><span>∞</span></div>
+            <div class="game-card-stat" style="margin-top:4px"><span>Valor</span><span>9 pts</span></div>
+          </div>
+        </div>
+        <div class="game-card-rarity rarity-lendario">⭐ Lendária</div>
+      </div>
+
+      <div class="game-card reveal">
+        <div class="game-card-header" style="background:linear-gradient(135deg,#1a0a4a,#3d1a8a)">
+          <span class="game-card-piece">♜</span>
+          <div class="game-card-type">Peça · Cartinha</div>
+        </div>
+        <div class="game-card-body">
+          <div class="game-card-name">Torre</div>
+          <div class="game-card-stats">
+            <div class="game-card-stat"><span>Poder</span><span>75</span></div>
+            <div class="game-card-bar"><div class="game-card-bar-fill" style="width:75%"></div></div>
+            <div class="game-card-stat"><span>Alcance</span><span>Linha reta</span></div>
+            <div class="game-card-stat" style="margin-top:4px"><span>Valor</span><span>5 pts</span></div>
+          </div>
+        </div>
+        <div class="game-card-rarity rarity-raro">💎 Rara</div>
+      </div>
+
+      <div class="game-card reveal">
+        <div class="game-card-header" style="background:linear-gradient(135deg,#0a2a1a,#0f4a28)">
+          <span class="game-card-piece">♞</span>
+          <div class="game-card-type">Peça · Cartinha</div>
+        </div>
+        <div class="game-card-body">
+          <div class="game-card-name">Cavalo</div>
+          <div class="game-card-stats">
+            <div class="game-card-stat"><span>Poder</span><span>62</span></div>
+            <div class="game-card-bar"><div class="game-card-bar-fill" style="width:62%;background:linear-gradient(90deg,#4ade80,#22c55e)"></div></div>
+            <div class="game-card-stat"><span>Especial</span><span>Salto em L</span></div>
+            <div class="game-card-stat" style="margin-top:4px"><span>Valor</span><span>3 pts</span></div>
+          </div>
+        </div>
+        <div class="game-card-rarity rarity-comum">🔵 Comum</div>
+      </div>
+
+      <!-- Achievement card -->
+      <div class="achievement-card reveal">
+        <span class="ach-icon">🏆</span>
+        <div class="ach-title">Mestre do Ataque</div>
+        <p class="ach-desc">Conquistou 10 vitórias usando ataque pelas laterais. Você dominou as colunas abertas!</p>
+        <span class="ach-xp">+250 XP</span>
+      </div>
+
+      <div class="achievement-card reveal">
+        <span class="ach-icon">🎯</span>
+        <div class="ach-title">Defensor de Ferro</div>
+        <p class="ach-desc">Sobreviveu a 5 partidas em desvantagem e virou o jogo. Resiliência máxima!</p>
+        <span class="ach-xp">+180 XP</span>
+      </div>
+
+      <!-- Lesson plan card -->
+      <div class="lesson-card reveal">
+        <div class="lesson-header">
+          <div class="lesson-num">07</div>
+          <div>
+            <div class="lesson-title-small">Aberturas Básicas</div>
+            <div class="lesson-sub-small">Ensino Fundamental I · 50 min</div>
+          </div>
+        </div>
+        <div class="lesson-body">
+          <div class="lesson-steps">
+            <div class="lesson-step"><div class="step-dot done"></div><span>Revisão da aula anterior</span></div>
+            <div class="lesson-step"><div class="step-dot done"></div><span>Introdução ao centro</span></div>
+            <div class="lesson-step"><div class="step-dot active"></div><span style="color:var(--cyan);font-weight:600">Jogo das aberturas ← atual</span></div>
+            <div class="lesson-step"><div class="step-dot todo"></div><span>Partida prática livre</span></div>
+            <div class="lesson-step"><div class="step-dot todo"></div><span>Missão de casa</span></div>
+          </div>
+        </div>
+        <div class="lesson-progress">
+          <div class="lp-text"><span>Progresso da aula</span><span style="color:var(--cyan)">60%</span></div>
+          <div class="lp-bar"><div class="lp-fill" style="width:60%"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BENEFITS -->
+<section class="benefits-section section" id="beneficios">
+  <div class="container">
+    <div class="reveal" style="text-align:center">
+      <div class="section-tag">💎 Benefícios Reais</div>
+      <h2 class="section-title">O que você ganha de verdade</h2>
+      <p class="section-sub" style="margin:0 auto">Não é só material bonito — é economia de tempo, resultado e reconhecimento profissional.</p>
+    </div>
+    <div class="benefits-grid">
+      <div class="benefit-card reveal"><span class="ben-icon">⏱</span><div class="ben-title">Economize Dezenas de Horas</div><p class="ben-desc">Pare de começar do zero toda semana. Tenha uma base sólida de aulas e atividades sempre pronta para uso.</p></div>
+      <div class="benefit-card reveal"><span class="ben-icon">🎯</span><div class="ben-title">Alunos Engajados</div><p class="ben-desc">Alunos que participam ativamente tendem a se concentrar mais, respeitar o ambiente e evoluir mais rápido.</p></div>
+      <div class="benefit-card reveal"><span class="ben-icon">📚</span><div class="ben-title">Ensino Progressivo</div><p class="ben-desc">Conteúdo pensado para evoluir do básico ao avançado, com coerência pedagógica e sequência clara.</p></div>
+      <div class="benefit-card reveal"><span class="ben-icon">🏫</span><div class="ben-title">Diferencial na Escola</div><p class="ben-desc">A direção percebe a organização, o cuidado visual e o impacto que suas aulas causam nos alunos.</p></div>
+      <div class="benefit-card reveal"><span class="ben-icon">😌</span><div class="ben-title">Menos Estresse</div><p class="ben-desc">Você entra na sala sabendo exatamente o que fazer, com material preparado e estruturado.</p></div>
+      <div class="benefit-card reveal"><span class="ben-icon">🏆</span><div class="ben-title">Pronto para Torneios</div><p class="ben-desc">Recursos completos para montar torneios, murais, campanhas e exposições de xadrez na escola.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- FOR WHOM -->
+<section class="forwho-section section">
+  <div class="container">
+    <div class="reveal" style="text-align:center">
+      <div class="section-tag">🎯 Para quem é?</div>
+      <h2 class="section-title">Este pacote é para você?</h2>
+    </div>
+    <div class="forwho-grid">
+      <div class="fw-card yes reveal-left">
+        <h3>✅ É para você se…</h3>
+        <ul class="fw-list">
+          <li>✔ <span>Você é professor de xadrez do ensino fundamental I e II.</span></li>
+          <li>✔ <span>Sua escola quer profissionalizar o ensino de xadrez.</span></li>
+          <li>✔ <span>Você atua em clubes, projetos sociais, ONGs ou secretarias.</span></li>
+          <li>✔ <span>É iniciante e ainda não tem acervo organizado.</span></li>
+          <li>✔ <span>É experiente e quer renovar o visual e a metodologia.</span></li>
+        </ul>
+      </div>
+      <div class="fw-card no reveal-right">
+        <h3>⛔ Não é para você se…</h3>
+        <ul class="fw-list">
+          <li>✗ <span>Você procura apenas materiais gratuitos ou improvisados.</span></li>
+          <li>✗ <span>Não pretende aplicar um método organizado e consistente.</span></li>
+          <li>✗ <span>Não vê valor em materiais profissionais e bem acabados.</span></li>
+          <li>✗ <span>Não está disposto a melhorar a experiência dos alunos.</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AUTHOR -->
+<section class="author-section section" id="autor">
+  <div class="container">
+    <div class="author-inner">
+      <div class="author-card reveal-left">
+        <div class="author-card-top">
+          <div class="author-avatar-big">♟️</div>
+          <div class="author-name">Fhellipe Augusto</div>
+          <div class="author-role">Bacharel em Educação Física<br>Especialista em Xadrez na Educação<br>Xadrez Técnico e Pedagógico</div>
+        </div>
+        <div class="author-card-stats">
+          <div class="a-stat"><div class="a-stat-num">2k+</div><div class="a-stat-label">Alunos</div></div>
+          <div class="a-stat"><div class="a-stat-num">130k</div><div class="a-stat-label">Seguidores</div></div>
+          <div class="a-stat"><div class="a-stat-num">15+</div><div class="a-stat-label">Anos jogando</div></div>
+        </div>
+      </div>
+      <div class="author-content reveal-right">
+        <div class="section-tag">👤 Quem criou</div>
+        <h2 class="section-title">Feito por quem vive a <em>sala de aula</em></h2>
+        <p class="author-bio">Apaixonado pelo xadrez desde os 9 anos, Fhellipe dedicou sua carreira ao ensino do jogo em escolas, projetos e eventos — impactando mais de 2.000 crianças e adolescentes. Criador do maior perfil de xadrez educacional do Brasil.</p>
+        <div class="author-cred">
+          <div class="cred-item"><span class="cred-icon">📱</span><span>Instagram <strong style="color:var(--cyan)">@xadrezcomz</strong> · mais de 130 mil seguidores</span></div>
+          <div class="cred-item"><span class="cred-icon">🎓</span><span>Especialização em <strong style="color:var(--gold)">Xadrez Técnico e Pedagógico</strong></span></div>
+          <div class="cred-item"><span class="cred-icon">🏫</span><span>Material testado em escolas reais — do Infantil 4 ao Ensino Médio</span></div>
+          <div class="cred-item"><span class="cred-icon">✅</span><span>Cada material foi refinado na prática com centenas de turmas</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- OFFER -->
+<section class="offer-section" id="oferta">
+  <div class="container">
+    <div class="reveal" style="text-align:center">
+      <div class="section-tag">♛ A Oferta</div>
+      <h2 class="section-title">Um ecossistema em <em>evolução constante</em></h2>
+      <p class="section-sub" style="margin:0 auto">Este não é um pacote estático. Novos materiais são incluídos continuamente — e você recebe tudo.</p>
+    </div>
+    <div class="offer-wrap reveal">
+      <div class="offer-top-banner">
+        <div class="offer-badge-top">⭐ Oferta Especial para Professores</div>
+        <div class="offer-title-big">Pacote Didático Xadrez com Z</div>
+        <div class="offer-sub">Material completo · Editável · Atualizações inclusas</div>
+        <div class="offer-price-area">
+          <div class="offer-old-price">Valor real de produção: R$ 900+</div>
+          <div class="offer-price-main">Acesso Premium</div>
+        </div>
+      </div>
+      <div class="offer-body-section">
+        <ul class="offer-includes-list">
+          <li class="offer-item"><span class="check">✔</span>Pacote completo com todos os materiais atuais</li>
+          <li class="offer-item"><span class="check">✔</span>Atualizações constantes sem custo adicional</li>
+          <li class="offer-item"><span class="check">✔</span>Arquivos editáveis no Canva</li>
+          <li class="offer-item"><span class="check">✔</span>Conteúdos organizados para uso imediato</li>
+          <li class="offer-item"><span class="check">✔</span>Acesso digital seguro à plataforma de entrega</li>
+          <li class="offer-item"><span class="check">✔</span>Suporte em caso de dúvidas sobre uso e aplicação</li>
+          <li class="offer-item"><span class="check">✔</span>Sistema gamificado de missão e recompensa</li>
+        </ul>
+        <a href="https://pay.hotmart.com/C102839941U" class="btn-offer" target="_blank" rel="noopener">♟ Quero garantir meu acesso agora</a>
+        <div class="offer-guarantee-row">
+          <span style="font-size:1.8rem">🔒</span>
+          <span>Acesso digital seguro, materiais organizados e suporte direto. Aplicado com sucesso em turmas de Infantil 4 até o Ensino Médio.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq-section section">
+  <div class="container">
+    <div class="reveal" style="text-align:center">
+      <div class="section-tag">❓ FAQ</div>
+      <h2 class="section-title">Perguntas frequentes</h2>
+    </div>
+    <div class="faq-list reveal">
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">Preciso saber mexer no Canva para usar o pacote? <span class="faq-arrow">▼</span></button>
+        <div class="faq-a">Não obrigatoriamente. Você pode baixar e imprimir os materiais já prontos. Os arquivos editáveis no Canva são um bônus para personalização, caso queira adaptar textos ou identidade visual.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">Posso usar o material com mais de uma turma? <span class="faq-arrow">▼</span></button>
+        <div class="faq-a">Sim. O pacote foi pensado exatamente para ser aplicado em diversas turmas e anos letivos, ampliando o retorno sobre o investimento.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">As atualizações têm custo adicional? <span class="faq-arrow">▼</span></button>
+        <div class="faq-a">Não. Novos materiais incorporados ao Pacote Didático Xadrez com Z ficam disponíveis para você sem cobrança extra.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">Para quais idades o material é adequado? <span class="faq-arrow">▼</span></button>
+        <div class="faq-a">O conteúdo foi testado em turmas do Infantil 4 até o Ensino Médio, com materiais graduados para diferentes níveis de desenvolvimento e conhecimento do xadrez.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">Como recebo acesso ao material após a compra? <span class="faq-arrow">▼</span></button>
+        <div class="faq-a">Após a compra você recebe acesso imediato à plataforma digital de entrega, onde todos os materiais estão organizados e prontos para download. O suporte está disponível para dúvidas sobre uso e aplicação.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final-cta">
+  <h2 class="reveal">Suas aulas merecem<br>ser <em>inesquecíveis</em>.</h2>
+  <p class="reveal">Seus alunos vão sentir a diferença. A direção da escola vai notar. E você vai ensinar com mais leveza, confiança e propósito.</p>
+  <a href="https://pay.hotmart.com/C102839941U" class="btn-hero reveal" target="_blank" rel="noopener">Começar agora <span class="arrow">→</span></a>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-brand">Xadrez com Z</div>
+  <div class="footer-links">
+    <a href="https://www.instagram.com/xadrezcomz/" target="_blank">@xadrezcomz</a>
+    <a href="#materiais">Materiais</a>
+    <a href="#oferta">Oferta</a>
+  </div>
+  <div class="footer-copy">© 2025 Xadrez com Z · Fhellipe Augusto</div>
+</footer>
+
+<script>
+// ── CUSTOM CURSOR (desktop only) ──
+const isMobile = window.matchMedia('(max-width:900px)').matches;
+const cursor = document.getElementById('cursor');
+const trail = document.getElementById('cursor-trail');
+let mx=0,my=0,tx=0,ty=0;
+if(!isMobile){
+document.addEventListener('mousemove',e=>{
+  mx=e.clientX;my=e.clientY;
+  cursor.style.left=mx+'px';cursor.style.top=my+'px';
+});
+setInterval(()=>{
+  tx+=(mx-tx)*0.15;ty+=(my-ty)*0.15;
+  trail.style.left=tx+'px';trail.style.top=ty+'px';
+},16);
+document.querySelectorAll('a,button,.item-card,.game-card,.achievement-card,.lesson-card').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{cursor.style.width='24px';cursor.style.height='24px';});
+  el.addEventListener('mouseleave',()=>{cursor.style.width='12px';cursor.style.height='12px';});
+});
+} else {
+  cursor.style.display='none';
+  trail.style.display='none';
+  document.body.style.cursor='auto';
+}
+
+// ── PARTICLES ──
+const canvas = document.getElementById('particles-canvas');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+let resizeTimer;
+window.addEventListener('resize',()=>{
+  clearTimeout(resizeTimer);
+  resizeTimer=setTimeout(()=>{canvas.width=window.innerWidth;canvas.height=window.innerHeight;},200);
+});
+const pieces = ['♟','♙','♜','♞','♝'];
+const particleCount = isMobile ? 12 : 30;
+const particles = Array.from({length:particleCount},()=>({
+  x:Math.random()*canvas.width, y:Math.random()*canvas.height,
+  vx:(Math.random()-0.5)*0.4, vy:(Math.random()-0.5)*0.4,
+  size:Math.random()*18+10, opacity:Math.random()*0.15+0.04,
+  piece:pieces[Math.floor(Math.random()*pieces.length)],
+  rot:Math.random()*Math.PI*2, rotSpeed:(Math.random()-0.5)*0.01
+}));
+let animActive = true;
+document.addEventListener('visibilitychange',()=>{ animActive = !document.hidden; });
+function animParticles(){
+  if(!animActive){ requestAnimationFrame(animParticles); return; }
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  particles.forEach(p=>{
+    p.x+=p.vx;p.y+=p.vy;p.rot+=p.rotSpeed;
+    if(p.x<-50)p.x=canvas.width+50;if(p.x>canvas.width+50)p.x=-50;
+    if(p.y<-50)p.y=canvas.height+50;if(p.y>canvas.height+50)p.y=-50;
+    ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot);
+    ctx.globalAlpha=p.opacity;ctx.font=p.size+'px serif';
+    ctx.fillStyle='#f5c842';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(p.piece,0,0);ctx.restore();
+  });
+  requestAnimationFrame(animParticles);
+}
+animParticles();
+
+// ── CHESS BOARD ──
+const board = document.getElementById('chess-board');
+const setup = [
+  ['♜','♞','♝','♛','♚','♝','♞','♜'],
+  ['♟','♟','♟','♟','♟','♟','♟','♟'],
+  ['','','','','','','',''],
+  ['','','','','','','',''],
+  ['','','','','','','',''],
+  ['','','','','','','',''],
+  ['♙','♙','♙','♙','♙','♙','♙','♙'],
+  ['♖','♘','♗','♕','♔','♗','♘','♖'],
+];
+const glowCells = [new Set([18,19,27,36,45])];
+setup.forEach((row,r)=>{
+  row.forEach((piece,c)=>{
+    const cell = document.createElement('div');
+    const isLight = (r+c)%2===0;
+    cell.className = 'chess-cell '+(isLight?'light':'dark');
+    const idx = r*8+c;
+    if([18,19,27,36,45].includes(idx)) cell.classList.add('glow-cell');
+    if(piece){
+      const p = document.createElement('span');
+      // Linhas 0-1 = peças pretas; linhas 6-7 = peças brancas
+      const isBlack = r <= 1;
+      p.className = 'chess-piece ' + (isBlack ? 'black' : 'white');
+      p.textContent=piece;
+      cell.appendChild(p);
+    }
+    board.appendChild(cell);
+  });
+});
+
+// ── SCROLL REVEAL ──
+const allReveals = document.querySelectorAll('.reveal,.reveal-left,.reveal-right');
+const revObs = new IntersectionObserver((entries)=>{
+  entries.forEach((entry,i)=>{
+    if(entry.isIntersecting){
+      const delay = (entry.target.closest('.items-grid,.benefits-grid,.cards-showcase'))?
+        Array.from(entry.target.parentNode.children).indexOf(entry.target)*80:0;
+      setTimeout(()=>entry.target.classList.add('visible'),delay);
+      revObs.unobserve(entry.target);
+    }
+  });
+},{threshold:0.1});
+allReveals.forEach(el=>revObs.observe(el));
+
+// ── COUNTER ANIMATION ──
+const counters = document.querySelectorAll('[data-target]');
+const counterObs = new IntersectionObserver(entries=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){
+      const el=entry.target;
+      const target=+el.dataset.target;
+      const suffix=target>=1000?'+':target>=100?'+':'+';
+      let start=0;
+      const inc=target/60;
+      const update=()=>{
+        start=Math.min(start+inc,target);
+        el.textContent=Math.floor(start).toLocaleString('pt-BR')+suffix;
+        if(start<target)requestAnimationFrame(update);
+      };
+      update();
+      counterObs.unobserve(el);
+    }
+  });
+},{threshold:0.5});
+counters.forEach(c=>counterObs.observe(c));
+
+// ── PROGRESS BARS ──
+const barObs = new IntersectionObserver(entries=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){
+      setTimeout(()=>{
+        document.getElementById('bar1').style.width='94%';
+        document.getElementById('bar2').style.width='28%';
+        document.getElementById('bar3').style.width='80%';
+        document.getElementById('bar4').style.width='87%';
+      },300);
+      barObs.disconnect();
+    }
+  });
+},{threshold:0.3});
+const problemSection = document.querySelector('.problem-section');
+if(problemSection)barObs.observe(problemSection);
+
+// ── FAQ ──
+function toggleFaq(btn){
+  const a=btn.nextElementSibling;
+  const open=a.classList.contains('open');
+  document.querySelectorAll('.faq-a').forEach(x=>x.classList.remove('open'));
+  document.querySelectorAll('.faq-q').forEach(x=>x.classList.remove('open'));
+  if(!open){a.classList.add('open');btn.classList.add('open');}
+}
+</script>
+</body>
+</html>
